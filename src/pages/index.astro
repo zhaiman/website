@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+// 取最近 5 篇文章展示在首页
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 5);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.recent {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			.recent li {
+				margin: 1em 0;
+			}
+			.recent a {
+				display: flex;
+				align-items: baseline;
+				gap: 1em;
+				text-decoration: none;
+				color: rgb(var(--black));
+			}
+			.recent a:hover .post-title {
+				color: rgb(var(--accent));
+			}
+			.post-title {
+				font-size: 1.2rem;
+				font-weight: 600;
+			}
+			.post-date {
+				color: rgb(var(--gray));
+				white-space: nowrap;
+			}
+			.more {
+				color: rgb(var(--gray));
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>你好，欢迎来到这里</h1>
+			<p>这里是我在互联网上的一块自留地，用来记录文字与想法。</p>
+			<h2>最近更新</h2>
+			<ul class="recent">
+				{
+					posts.map((post) => (
+						<li>
+							<a href={`/blog/${post.id}/`}>
+								<span class="post-title">{post.data.title}</span>
+								<span class="post-date">
+									<FormattedDate date={post.data.pubDate} />
+								</span>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+			<p class="more"><a href="/blog">查看全部文章 &rarr;</a></p>
+		</main>
+		<Footer />
+	</body>
+</html>
