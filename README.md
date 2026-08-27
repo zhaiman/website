@@ -19,6 +19,12 @@
 2. 本地预览：`npm run dev`，浏览器打开 http://localhost:4321
 3. 发布：提交并推送到 GitHub，Cloudflare Pages 自动构建上线
 
+> ⚠️ 注意：**提交信息请用英文**（如 `post: new article about xxx`）。
+> 纯中文提交信息会导致 Cloudflare Pages 构建失败（报 "Empty commit message"）。
+
+> ⚠️ 注意：每篇文章开头必须有 frontmatter（title / description / pubDate 三个必填字段），
+> 缺失会导致构建失败。文件名建议用英文短横线命名，它决定文章的网址。
+
 ## 常用命令
 
 | 命令 | 作用 |
