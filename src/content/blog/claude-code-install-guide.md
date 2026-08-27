@@ -1,4 +1,8 @@
-# Claude Code 完整安装指南：从零开始到成功运行
+---
+title: Claude Code 完整安装指南：从零开始到成功运行
+description: Claude Code 原生安装、API Key 配置、IDE 集成与故障排查的完整教程
+pubDate: 2026-08-27
+---
 
 > **课程信息**
 >
