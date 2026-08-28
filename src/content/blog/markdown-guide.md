@@ -47,4 +47,55 @@ console.log('Hello, world!');
 
 ---
 
+## 多媒体：图片、音乐、视频
+
+Markdown 不只可以放文字，图片、音频、视频都能嵌入。
+
+### 图片
+
+图片放进 `src/assets/` 目录，用相对路径引用，Astro 会自动压缩并转成 WebP 格式：
+
+```md
+![图片描述](../../assets/文件名.jpg)
+```
+
+实际效果：
+
+![Astro 博客模板自带的示例配图](../../assets/blog-placeholder-2.jpg)
+
+### 音频
+
+音频文件放进 `public/audio/`，文章里写 HTML 的 `<audio>` 标签：
+
+```html
+<audio controls src="/audio/文件名.mp3"></audio>
+```
+
+实际效果（一段三音符提示音，1.5 秒）：
+
+<audio controls src="/audio/demo.wav" style="width: 100%;"></audio>
+
+想嵌入网易云音乐的歌曲，在网页版歌曲页点「生成外链播放器」，把 iframe 代码贴进来即可。
+
+### 视频
+
+小视频（25MB 以内）放 `public/video/`，用 `<video>` 标签：
+
+```html
+<video controls width="100%" src="/video/文件名.mp4"></video>
+```
+
+大视频推荐嵌入 B 站：视频页点「分享 → 嵌入代码」，把 iframe 贴进文章。实际效果：
+
+<div style="position: relative; width: 100%; padding-top: 56.25%;">
+	<iframe src="//player.bilibili.com/player.html?bvid=BV1GJ411x7h7&autoplay=0"
+		scrolling="no" frameborder="no"
+		style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+		allowfullscreen="true"></iframe>
+</div>
+
+（上面这个 iframe 用了一个按视频宽高比自适应的容器写法，可以原样复制，把 `bvid` 换成自己的视频 ID。）
+
+---
+
 就这些，够用了。
