@@ -5,10 +5,25 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import type { TocItem } from '../utils/posts';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	toc?: TocItem[];
+	minutes?: number;
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags = [],
+	toc = [],
+	minutes,
+} = Astro.props;
+
+const showToc = toc.length >= 3;
 ---
 
 <html lang="zh-CN">
@@ -31,19 +46,45 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			}
 			.prose {
 				width: 720px;
-				max-width: calc(100% - 2em);
+				max-width: 100%;
 				margin: auto;
 				padding: 1em;
 				color: rgb(var(--gray-dark));
 			}
 			.title {
 				margin-bottom: 1em;
-				padding: 1em 0;
+				padding: 1.5em 0 1em 0;
 				text-align: center;
 				line-height: 1;
 			}
 			.title h1 {
-				margin: 0 0 0.5em 0;
+				margin: 0 0 0.6em 0;
+				line-height: 1.35;
+			}
+			.meta {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 0.4em;
+				color: rgb(var(--gray));
+				font-size: 0.88rem;
+			}
+			.meta .sep {
+				opacity: 0.6;
+			}
+			.meta a {
+				color: rgb(var(--gray));
+				border: none;
+			}
+			.meta a:hover {
+				color: var(--accent);
+				border-bottom-color: transparent;
+			}
+			.tag {
+				padding: 0.1em 0.6em;
+				background: var(--accent-soft);
+				border-radius: 999px;
 			}
 			.date {
 				margin-bottom: 0.5em;
@@ -62,10 +103,21 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				<div class="hero-image">
 					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
 				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
+				<div class="content-row">
+					<div class="prose">
+						<div class="title">
+							<div class="meta">
+								<span class="date"><FormattedDate date={pubDate} /></span>
+								{minutes && <span class="sep">·</span>}
+								{minutes && <span>约 {minutes} 分钟</span>}
+								{
+									tags.map((tag) => (
+										<a class="tag" href={`/tags/${tag}/`}>
+											{tag}
+										</a>
+									))
+								}
+							</div>
 							{
 								updatedDate && (
 									<div class="last-updated-on">
@@ -73,14 +125,97 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 									</div>
 								)
 							}
+							<h1>{title}</h1>
+							<hr />
 						</div>
-						<h1>{title}</h1>
-						<hr />
+						<slot />
 					</div>
-					<slot />
+					{
+						showToc && (
+							<aside class="toc" aria-label="文章目录">
+								<h3>目录</h3>
+								<ul>
+									{toc.map((item) => (
+										<li>
+											<a
+												class={`level-${item.depth}`}
+												href={`#${item.id}`}
+											>
+												{item.text}
+											</a>
+										</li>
+									))}
+								</ul>
+							</aside>
+						)
+					}
 				</div>
 			</article>
 		</main>
+		<button class="back-to-top" id="back-to-top" aria-label="返回顶部" title="返回顶部">
+			<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+				><path
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					fill="none"
+					d="M12 19V5M5 12l7-7 7 7"></path></svg
+			>
+		</button>
 		<Footer />
+
+		<script>
+			// 目录滚动高亮：观察各章节标题，进入视口上 1/3 区域时点亮对应目录项
+			const headings = document.querySelectorAll('.prose h2[id], .prose h3[id]');
+			const tocLinks = document.querySelectorAll<HTMLAnchorElement>('.toc a');
+			if (headings.length && tocLinks.length) {
+				const setActive = (id: string) => {
+					tocLinks.forEach((a) =>
+						a.classList.toggle('active', a.getAttribute('href') === `#${id}`),
+					);
+				};
+				const observer = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (entry.isIntersecting) setActive(entry.target.id);
+						}
+					},
+					{ rootMargin: '-15% 0px -70% 0px' },
+				);
+				headings.forEach((h) => observer.observe(h));
+			}
+
+			// 代码块复制按钮
+			document.querySelectorAll('pre.astro-code').forEach((pre) => {
+				const code = pre.querySelector('code');
+				if (!code) return;
+				const btn = document.createElement('button');
+				btn.className = 'copy-btn';
+				btn.textContent = '复制';
+				btn.addEventListener('click', async () => {
+					try {
+						await navigator.clipboard.writeText(code.innerText);
+						btn.textContent = '已复制';
+					} catch {
+						btn.textContent = '复制失败';
+					}
+					setTimeout(() => (btn.textContent = '复制'), 1500);
+				});
+				pre.appendChild(btn);
+			});
+
+			// 返回顶部
+			const backToTop = document.getElementById('back-to-top');
+			if (backToTop) {
+				const toggle = () =>
+					backToTop.classList.toggle('visible', window.scrollY > 600);
+				window.addEventListener('scroll', toggle, { passive: true });
+				toggle();
+				backToTop.addEventListener('click', () =>
+					window.scrollTo({ top: 0, behavior: 'smooth' }),
+				);
+			}
+		</script>
 	</body>
 </html>

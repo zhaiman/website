@@ -2,6 +2,7 @@
 title: Markdown 写作速查
 description: 写文章时常用的语法示例
 pubDate: 2026-08-27
+tags: [写作]
 ---
 
 这篇文章演示了写作用到的常见 Markdown 语法，可以直接对照着用。

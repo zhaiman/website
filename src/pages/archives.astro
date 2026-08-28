@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// 按年份分组
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+	const year = post.data.pubDate.getFullYear();
+	if (!byYear.has(year)) byYear.set(year, []);
+	byYear.get(year)!.push(post);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+const total = posts.length;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`归档 · ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				width: 720px;
+			}
+			.page-title {
+				margin: 0 0 1.5em 0;
+			}
+			.page-title small {
+				color: rgb(var(--gray));
+				font-size: 0.45em;
+				font-weight: 400;
+				margin-left: 0.5em;
+			}
+			.year {
+				margin: 2em 0 0.8em 0;
+				color: rgb(var(--gray));
+				font-size: 1.1rem;
+				font-weight: 600;
+			}
+			.posts {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				border-left: 2px solid rgb(var(--gray-light));
+			}
+			.posts li {
+				padding: 0.55em 0 0.55em 1.4em;
+				position: relative;
+			}
+			.posts li::before {
+				content: '';
+				position: absolute;
+				left: -5px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: var(--accent);
+			}
+			.posts a {
+				color: rgb(var(--black));
+				border-bottom: none;
+			}
+			.posts a:hover {
+				color: var(--accent);
+			}
+			.posts .post-date {
+				color: rgb(var(--gray));
+				font-size: 0.85rem;
+				margin-right: 0.8em;
+				white-space: nowrap;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1 class="page-title">归档<small>共 {total} 篇</small></h1>
+			{
+				years.map((year) => (
+					<section>
+						<h2 class="year">{year}</h2>
+						<ul class="posts">
+							{byYear.get(year)!.map((post) => (
+								<li>
+									<span class="post-date">
+										<FormattedDate date={post.data.pubDate} />
+									</span>
+									<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+								</li>
+							))}
+						</ul>
+					</section>
+				))
+			}
+		</main>
+		<Footer />
+	</body>
+</html>

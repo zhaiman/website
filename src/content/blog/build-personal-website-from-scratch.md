@@ -2,6 +2,7 @@
 title: 从零搭建个人博客：Astro + GitHub + Cloudflare Pages 完整建站教程
 description: 从空文件夹到网站上线全流程实录：Astro 初始化、中文化、Git 版本管理、Cloudflare Pages 自动部署、域名绑定，以及两个真实踩坑记录
 pubDate: 2026-08-27
+tags: [建站, 教程]
 ---
 
 这篇教程记录了我搭建本站（www.carryqi.cn）的完整过程，从零开始到网站上线，每一步都经过实际验证。即使你完全没有建站经验，跟着做也能在半天内拥有自己的网站。

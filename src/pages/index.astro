@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { readingTime } from '../utils/posts';
 
 // 取最近 5 篇文章展示在首页
 const posts = (await getCollection('blog'))
@@ -17,52 +18,93 @@ const posts = (await getCollection('blog'))
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
+			.hero {
+				margin: 1em 0 3em 0;
+			}
+			.hero h1 {
+				margin-bottom: 0.4em;
+			}
+			.hero p {
+				color: rgb(var(--gray));
+				margin: 0;
+			}
+			.section-title {
+				font-size: 1.1rem;
+				color: rgb(var(--gray));
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				margin: 0 0 0.8em 0;
+			}
 			.recent {
 				margin: 0;
 				padding: 0;
 				list-style: none;
 			}
 			.recent li {
-				margin: 1em 0;
+				padding: 1.1em 0;
+				border-bottom: var(--border);
 			}
-			.recent a {
-				display: flex;
-				align-items: baseline;
-				gap: 1em;
-				text-decoration: none;
-				color: rgb(var(--black));
+			.recent li:last-child {
+				border-bottom: none;
 			}
-			.recent a:hover .post-title {
-				color: rgb(var(--accent));
+			.recent a.post-link {
+				display: block;
+				color: inherit;
+				border-bottom: none;
+			}
+			.recent a.post-link:hover .post-title {
+				color: var(--accent);
 			}
 			.post-title {
-				font-size: 1.2rem;
+				font-size: 1.15rem;
 				font-weight: 600;
+				color: rgb(var(--black));
+				line-height: 1.4;
+				transition: color 0.15s ease;
 			}
-			.post-date {
+			.post-meta {
+				margin-top: 0.3em;
 				color: rgb(var(--gray));
-				white-space: nowrap;
+				font-size: 0.85rem;
+			}
+			.post-meta .sep {
+				opacity: 0.6;
+			}
+			.post-desc {
+				margin: 0.4em 0 0 0;
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+				line-height: 1.7;
 			}
 			.more {
+				margin-top: 1.5em;
 				color: rgb(var(--gray));
+				font-size: 0.9rem;
 			}
 		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
-			<h1>你好，欢迎来到这里</h1>
-			<p>这里是我在互联网上的一块自留地，用来记录文字与想法。</p>
-			<h2>最近更新</h2>
+			<div class="hero">
+				<h1>你好，欢迎来到这里</h1>
+				<p>这里是我在互联网上的一块自留地，用来记录文字与想法。</p>
+			</div>
+			<h2 class="section-title">最近更新</h2>
 			<ul class="recent">
 				{
 					posts.map((post) => (
 						<li>
-							<a href={`/blog/${post.id}/`}>
-								<span class="post-title">{post.data.title}</span>
-								<span class="post-date">
+							<a class="post-link" href={`/blog/${post.id}/`}>
+								<div class="post-title">{post.data.title}</div>
+								<div class="post-meta">
 									<FormattedDate date={post.data.pubDate} />
-								</span>
+									<span class="sep">·</span>
+									<span>约 {readingTime(post.body ?? '')} 分钟</span>
+								</div>
+								{post.data.description && (
+									<p class="post-desc">{post.data.description}</p>
+								)}
 							</a>
 						</li>
 					))

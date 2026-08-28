@@ -34,6 +34,14 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <Font cssVariable="--font-atkinson" preload />
 
+<!-- 主题初始化：在渲染前根据 localStorage / 系统偏好设置，避免暗色模式闪白 -->
+<script is:inline>
+	const theme =
+		localStorage.getItem('theme') ??
+		(matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+	document.documentElement.classList.toggle('dark', theme === 'dark');
+</script>
+
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
